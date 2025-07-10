@@ -18,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   GoogleSignIn? _googleSignIn; // Khởi tạo lazy
-  final String _backendUrl = 'http://localhost:3000'; // URL backend
+  final String _backendUrl = 'http://10.0.2.2:3000'; // URL backend
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();

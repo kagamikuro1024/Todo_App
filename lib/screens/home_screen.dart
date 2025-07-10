@@ -9,6 +9,8 @@ import '/utils/app_constants.dart';
 //import '/widgets/filter_button.dart';
 import '/widgets/todo_item.dart';
 //import '/widgets/theme_toggle_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '/screens/login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,37 +18,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Todos'),
-      //   actions: [
-      //     // Nút chuyển đổi theme
-      //     const ThemeToggleButton(),
-      //     // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
-      //     PopupMenuButton<String>(
-      //       onSelected: (value) {
-      //         if (value == 'toggle_all') {
-      //           context.read<TodoBloc>().add(ToggleAll());
-      //         } else if (value == 'clear_completed') {
-      //           context.read<TodoBloc>().add(ClearCompleted());
-      //         }
-      //       },
-      //       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-      //         const PopupMenuItem<String>(
-      //           value: 'toggle_all',
-      //           child: Text('Đánh dấu tất cả hoàn thành/chưa hoàn thành'),
-      //         ),
-      //         const PopupMenuItem<String>(
-      //           value: 'clear_completed',
-      //           child: Text('Xóa tất cả đã hoàn thành'),
-      //         ),
-      //       ],
-      //     ),
-      //     // Nút lọc
-      //     const FilterButton(),
-      //   ],
-      // ),
       body: BlocConsumer<TodoBloc, TodoState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is TodosLoaded &&
               state.todos.isEmpty &&
               state.activeFilter == VisibilityFilter.completed) {
@@ -58,6 +31,17 @@ class HomeScreen extends StatelessWidget {
                   content: Text('Không có todo nào đã hoàn thành.'),
                 ),
               );
+          }
+          // Nếu không thể tải todos (có thể do token hết hạn hoặc lỗi xác thực), chuyển về màn hình đăng nhập
+          if (state is TodosNotLoaded) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.remove('jwt_token');
+            if (context.mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            }
           }
         },
         builder: (context, state) {

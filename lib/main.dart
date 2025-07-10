@@ -14,19 +14,33 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final String? jwtToken = prefs.getString('jwt_token');
 
-  // Khởi tạo TodoRepository với ApiService
+  bool isAuthenticated = false;
   final apiService = ApiService();
+  if (jwtToken != null) {
+    try {
+      await apiService.fetchTodos(); // Gọi thử API để xác thực token
+      isAuthenticated = true;
+    } catch (e) {
+      // Token hết hạn hoặc không hợp lệ
+      await prefs.remove('jwt_token');
+      isAuthenticated = false;
+    }
+  }
+
   final TodoRepository todoRepository = TodoRepository(apiService: apiService);
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => TodoBloc(todoRepository: todoRepository)..add(LoadTodos()),
+          create: (context) =>
+              TodoBloc(todoRepository: todoRepository)..add(LoadTodos()),
         ),
         BlocProvider(create: (context) => ThemeBloc()),
       ],
-      child: MyApp(isAuthenticated: jwtToken != null), // Truyền trạng thái xác thực
+      child: MyApp(
+        isAuthenticated: isAuthenticated,
+      ), // Truyền trạng thái xác thực
     ),
   );
 }
@@ -40,14 +54,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, themeState) {
-        final isDarkMode = themeState is ThemeInitial ? themeState.isDarkMode : false;
+        final isDarkMode = themeState is ThemeInitial
+            ? themeState.isDarkMode
+            : false;
 
         return MaterialApp(
           title: 'Todo App BloC',
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: isAuthenticated ? const TodoApp() : const LoginScreen(), // Chuyển hướng
+          home: isAuthenticated
+              ? const TodoApp()
+              : const LoginScreen(), // Chuyển hướng
         );
       },
     );

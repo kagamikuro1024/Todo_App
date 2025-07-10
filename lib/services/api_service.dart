@@ -4,9 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/models/todo.dart'; // Đảm bảo import đúng đường dẫn đến model Todo của bạn
 
 class ApiService {
-  final String backendUrl = 'http://localhost:3000'; // URL backend của bạn
-  final String _baseUrl =
-      'http://localhost:3000/api/todos'; // URL base của API Todos
+final String backendUrl = 'http://10.0.2.2:3000'; // URL backend của bạn
+final String _baseUrl = 'http://10.0.2.2:3000/api/todos'; // URL base của API Todos
   String? _jwtToken;
 
   ApiService() {
@@ -127,7 +126,7 @@ class ApiService {
     _jwtToken = null;
     // Có thể gọi API logout nếu backend có route logout riêng
     try {
-      await http.get(Uri.parse('http://localhost:3000/auth/logout'));
+      await http.get(Uri.parse('http://10.0.2.2:3000/auth/logout'));
     } catch (e) {
       print('Error calling backend logout: $e');
     }
@@ -135,7 +134,7 @@ class ApiService {
   // Đăng ký tài khoản mới
 Future<String> registerWithEmail(String email, String password) async {
   final response = await http.post(
-    Uri.parse('http://localhost:3000/auth/local/register'),
+    Uri.parse('http://10.0.2.2:3000/auth/local/register'),
     headers: {'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode({'email': email, 'password': password}),
   );
@@ -150,7 +149,7 @@ Future<String> registerWithEmail(String email, String password) async {
 // Đăng nhập bằng email & password
 Future<String> loginWithEmail(String email, String password) async {
   final response = await http.post(
-    Uri.parse('http://localhost:3000/auth/local/login'),
+    Uri.parse('http://10.0.2.2:3000/auth/local/login'),
     headers: {'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode({'email': email, 'password': password}),
   );
