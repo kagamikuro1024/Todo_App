@@ -7,6 +7,10 @@ import '/app.dart';
 import '/widgets/theme_toggle_button.dart';
 import 'register_screen.dart';
 import '../services/api_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/todo_bloc.dart';
+import '../repositories/todo_repository.dart';
+import '../bloc/todo_event.dart';
 
 // Màn hình Đăng nhập
 class LoginScreen extends StatefulWidget {
@@ -86,9 +90,16 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('jwt_token', jwtToken);
 
         // Chuyển hướng đến màn hình chính sau khi đăng nhập thành công
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const TodoApp()));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => BlocProvider(
+              create: (context) => TodoBloc(
+                todoRepository: TodoRepository(apiService: ApiService()),
+              )..add(LoadTodos()),
+              child: const TodoApp(),
+            ),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -125,9 +136,16 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Đăng nhập thành công!')));
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const TodoApp()));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => TodoBloc(
+              todoRepository: TodoRepository(apiService: ApiService()),
+            )..add(LoadTodos()),
+            child: const TodoApp(),
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -354,9 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           'Chưa có tài khoản? Đăng ký ngay',
                           style: TextStyle(
-                            color: isDarkMode
-                                ? Colors.blueAccent
-                                : Colors.blue,
+                            color: isDarkMode ? Colors.blueAccent : Colors.blue,
                             fontSize: 15,
                           ),
                         ),

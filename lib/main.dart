@@ -10,45 +10,17 @@ import '/repositories/todo_repository.dart';
 import '/services/api_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Đảm bảo Flutter binding đã được khởi tạo
-  final prefs = await SharedPreferences.getInstance();
-  final String? jwtToken = prefs.getString('jwt_token');
-
-  bool isAuthenticated = false;
-  final apiService = ApiService();
-  if (jwtToken != null) {
-    try {
-      await apiService.fetchTodos(); // Gọi thử API để xác thực token
-      isAuthenticated = true;
-    } catch (e) {
-      // Token hết hạn hoặc không hợp lệ
-      await prefs.remove('jwt_token');
-      isAuthenticated = false;
-    }
-  }
-
-  final TodoRepository todoRepository = TodoRepository(apiService: apiService);
-
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) =>
-              TodoBloc(todoRepository: todoRepository)..add(LoadTodos()),
-        ),
-        BlocProvider(create: (context) => ThemeBloc()),
-      ],
-      child: MyApp(
-        isAuthenticated: isAuthenticated,
-      ), // Truyền trạng thái xác thực
+      providers: [BlocProvider(create: (context) => ThemeBloc())],
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final bool isAuthenticated;
-
-  const MyApp({super.key, required this.isAuthenticated});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +29,12 @@ class MyApp extends StatelessWidget {
         final isDarkMode = themeState is ThemeInitial
             ? themeState.isDarkMode
             : false;
-
         return MaterialApp(
           title: 'Todo App BloC',
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: isAuthenticated
-              ? const TodoApp()
-              : const LoginScreen(), // Chuyển hướng
+          home: const AuthGate(),
         );
       },
     );
@@ -151,5 +120,55 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.grey[900],
       ),
     );
+  }
+}
+
+class AuthGate extends StatefulWidget {
+  const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool? isAuthenticated;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? jwtToken = prefs.getString('jwt_token');
+    if (jwtToken != null) {
+      final apiService = ApiService();
+      try {
+        await apiService.fetchTodos();
+        setState(() => isAuthenticated = true);
+        return;
+      } catch (_) {
+        await prefs.remove('jwt_token');
+      }
+    }
+    setState(() => isAuthenticated = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isAuthenticated == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (isAuthenticated!) {
+      return BlocProvider(
+        create: (context) =>
+            TodoBloc(todoRepository: TodoRepository(apiService: ApiService()))
+              ..add(LoadTodos()),
+        child: const TodoApp(),
+      );
+    } else {
+      return const LoginScreen();
+    }
   }
 }
