@@ -1,3 +1,4 @@
+// lib/models/todo.dart
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,7 +12,7 @@ class Todo extends Equatable {
   final bool complete;
 
   Todo({
-    String? id,
+    String? id, // Đảm bảo id có thể là null khi tạo mới
     required this.task,
     this.note = '',
     this.complete = false,

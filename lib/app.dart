@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '/screens/home_screen.dart';
-import '/screens/stats_screen.dart';
-import '/bloc/theme_bloc.dart';
+import 'screens/home_screen.dart'; 
+import 'screens/stats_screen.dart'; 
+import '/bloc/theme_bloc.dart'; 
+import 'screens/login_screen.dart'; 
+import '/bloc/todo_bloc.dart'; 
+import '/bloc/todo_event.dart'; 
+import '/widgets/filter_button.dart'; 
+import '/widgets/theme_toggle_button.dart'; 
+
 
 class TodoApp extends StatefulWidget {
   const TodoApp({super.key});
@@ -15,14 +21,27 @@ class _TodoAppState extends State<TodoApp> {
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    StatsScreen(),
+    HomeScreen(), //
+    StatsScreen(), //
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  // Hàm xử lý đăng xuất
+  void _handleLogout() async {
+    // Dispatch sự kiện Logout đến TodoBloc
+    context.read<TodoBloc>().add(Logout()); //
+
+    // Sau khi logout, điều hướng về màn hình đăng nhập
+    // Sử dụng pushAndRemoveUntil để xóa tất cả các route trước đó và hiển thị LoginScreen
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override
@@ -32,111 +51,60 @@ class _TodoAppState extends State<TodoApp> {
         final isDarkMode = themeState is ThemeInitial
             ? themeState.isDarkMode
             : false;
-
-        return MaterialApp(
-          title: 'Todo App BloC',
-          theme: _buildLightTheme(),
-          darkTheme: _buildDarkTheme(),
-          themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: Scaffold(
-            body: _widgetOptions.elementAt(_selectedIndex),
-            bottomNavigationBar: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Todos'),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.bar_chart),
-                  label: 'Thống kê',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: Colors.blueAccent,
-              onTap: _onItemTapped,
-            ),
+        return Scaffold( // Thay thế MaterialApp home bằng Scaffold để có AppBar
+          appBar: AppBar(
+            title: const Text('Todos'),
+            actions: [
+              // Nút chuyển đổi theme
+              const ThemeToggleButton(), //
+              // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'toggle_all') {
+                    // Dispatch sự kiện ToggleAll đến TodoBloc
+                    context.read<TodoBloc>().add(ToggleAll()); //
+                  } else if (value == 'clear_completed') {
+                    // Dispatch sự kiện ClearCompleted đến TodoBloc
+                    context.read<TodoBloc>().add(ClearCompleted()); //
+                  } else if (value == 'logout') {
+                    _handleLogout();
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'toggle_all',
+                    child: Text('Đánh dấu tất cả hoàn thành/chưa hoàn thành'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'clear_completed',
+                    child: Text('Xóa tất cả đã hoàn thành'),
+                  ),
+                  const PopupMenuDivider(), // Đường phân cách
+                  const PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Text('Đăng xuất'), // Nút đăng xuất
+                  ),
+                ],
+              ),
+              // Nút lọc
+              const FilterButton(), //
+            ],
+          ),
+          body: _widgetOptions.elementAt(_selectedIndex),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Todos'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.bar_chart),
+                label: 'Thống kê',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.blueAccent,
+            onTap: _onItemTapped,
           ),
         );
       },
-    );
-  }
-
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      brightness: Brightness.light,
-      primarySwatch: Colors.blue,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: Colors.grey[800],
-        contentTextStyle: const TextStyle(color: Colors.white),
-        actionTextColor: Colors.lightBlueAccent,
-      ),
-      checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return Colors.blueAccent;
-          }
-          return Colors.grey;
-        }),
-      ),
-      cardTheme: const CardThemeData(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-      ),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      brightness: Brightness.dark,
-      primarySwatch: Colors.blue,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.grey[900],
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-      ),
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: Colors.grey[200],
-        contentTextStyle: const TextStyle(color: Colors.black),
-        actionTextColor: Colors.blueAccent,
-      ),
-      checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return Colors.blueAccent;
-          }
-          return Colors.grey;
-        }),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 3,
-        color: Colors.grey[850],
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey[400],
-        backgroundColor: Colors.grey[900],
-      ),
     );
   }
 }

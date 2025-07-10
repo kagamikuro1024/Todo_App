@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
-import '/models/todo.dart';
-import '/utils/app_constants.dart';
+import '/models/todo.dart'; // Đảm bảo import đúng đường dẫn đến model Todo của bạn
+import '../utils/app_constants.dart'; // Đảm bảo import đúng đường dẫn đến model VisibilityFilter của bạn
 
-// Lớp cơ sở cho tất cả các sự kiện Todo
 abstract class TodoEvent extends Equatable {
   const TodoEvent();
 
@@ -10,10 +9,8 @@ abstract class TodoEvent extends Equatable {
   List<Object> get props => [];
 }
 
-// Sự kiện để tải danh sách todos
 class LoadTodos extends TodoEvent {}
 
-// Sự kiện để thêm một todo mới
 class AddTodo extends TodoEvent {
   final Todo todo;
 
@@ -21,9 +18,11 @@ class AddTodo extends TodoEvent {
 
   @override
   List<Object> get props => [todo];
+
+  @override
+  String toString() => 'AddTodo { todo: $todo }';
 }
 
-// Sự kiện để cập nhật một todo hiện có
 class UpdateTodo extends TodoEvent {
   final Todo todo;
 
@@ -31,9 +30,11 @@ class UpdateTodo extends TodoEvent {
 
   @override
   List<Object> get props => [todo];
+
+  @override
+  String toString() => 'UpdateTodo { todo: $todo }';
 }
 
-// Sự kiện để xóa một todo
 class DeleteTodo extends TodoEvent {
   final Todo todo;
 
@@ -41,15 +42,15 @@ class DeleteTodo extends TodoEvent {
 
   @override
   List<Object> get props => [todo];
+
+  @override
+  String toString() => 'DeleteTodo { todo: $todo }';
 }
 
-// Sự kiện để chuyển đổi trạng thái hoàn thành của tất cả todos
 class ToggleAll extends TodoEvent {}
 
-// Sự kiện để xóa tất cả các todos đã hoàn thành
 class ClearCompleted extends TodoEvent {}
 
-// Sự kiện để cập nhật bộ lọc hiển thị todos
 class UpdateFilter extends TodoEvent {
   final VisibilityFilter filter;
 
@@ -57,9 +58,11 @@ class UpdateFilter extends TodoEvent {
 
   @override
   List<Object> get props => [filter];
+
+  @override
+  String toString() => 'UpdateFilter { filter: $filter }';
 }
 
-// Sự kiện để hoàn tác xóa một todo
 class UndoDeleteTodo extends TodoEvent {
   final Todo todo;
   final int index;
@@ -68,4 +71,10 @@ class UndoDeleteTodo extends TodoEvent {
 
   @override
   List<Object> get props => [todo, index];
+
+  @override
+  String toString() => 'UndoDeleteTodo { todo: $todo, index: $index }';
 }
+
+// Thêm sự kiện Logout
+class Logout extends TodoEvent {}
