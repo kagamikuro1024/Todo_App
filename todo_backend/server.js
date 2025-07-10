@@ -7,6 +7,7 @@ const cors = require('cors');
 require('./config/passport-setup');
 const authRoutes = require('./routes/auth');
 const todoRoutes = require('./routes/todos');
+const authLocalRoutes = require('./routes/auth_local');
 
 dotenv.config();
 
@@ -29,8 +30,8 @@ app.use(express.json());
 app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
   keys: [process.env.JWT_SECRET],
-  sameSite: 'Lax', // Hoặc 'None' nếu bạn cần hỗ trợ các trình duyệt cũ hơn với secure cookie
-  secure: false // Đặt true trong môi trường production với HTTPS
+  sameSite: 'Lax',
+  secure: false 
 }));
 
 // Khởi tạo passport và session
@@ -40,6 +41,7 @@ app.use(passport.session());
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
+app.use('/auth/local', authLocalRoutes);
 
 const PORT = process.env.PORT || 3000;
 

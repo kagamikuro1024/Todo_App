@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
-import 'screens/login_screen.dart'; // Import màn hình đăng nhập
+import 'screens/login_screen.dart';
 import '/bloc/todo_event.dart';
 import '/bloc/todo_bloc.dart';
 import '/bloc/theme_bloc.dart';
 import '/repositories/todo_repository.dart';
-import '/services/api_service.dart'; // Import ApiService
+import '/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Đảm bảo Flutter binding đã được khởi tạo

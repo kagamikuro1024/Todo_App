@@ -7,10 +7,11 @@ const todoSchema = new mongoose.Schema({
 });
 const userSchema = new mongoose.Schema(
   {
-    googleId: { type: String, required: true, unique: true },
+    googleId: { type: String, sparse: true, unique: false },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     todos: [todoSchema],
+    password: { type: String, required: false },
   },
   {
     timestamps: true,

@@ -5,7 +5,8 @@ import '/models/todo.dart'; // Đảm bảo import đúng đường dẫn đến
 
 class ApiService {
   final String backendUrl = 'http://localhost:3000'; // URL backend của bạn
-  final String _baseUrl = 'http://localhost:3000/api/todos'; // URL base của API Todos
+  final String _baseUrl =
+      'http://localhost:3000/api/todos'; // URL base của API Todos
   String? _jwtToken;
 
   ApiService() {
@@ -42,7 +43,9 @@ class ApiService {
         // Token hết hạn hoặc không hợp lệ, yêu cầu đăng nhập lại
         throw Exception('Unauthorized. Please login again.');
       } else {
-        throw Exception('Failed to load todos: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Failed to load todos: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       print('Error fetching todos: $e');
@@ -63,7 +66,9 @@ class ApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized. Please login again.');
       } else {
-        throw Exception('Failed to add todo: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Failed to add todo: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       print('Error adding todo: $e');
@@ -84,7 +89,9 @@ class ApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized. Please login again.');
       } else {
-        throw Exception('Failed to update todo: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Failed to update todo: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       print('Error updating todo: $e');
@@ -104,7 +111,9 @@ class ApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized. Please login again.');
       } else {
-        throw Exception('Failed to delete todo: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Failed to delete todo: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       print('Error deleting todo: $e');
@@ -123,4 +132,37 @@ class ApiService {
       print('Error calling backend logout: $e');
     }
   }
+  // Đăng ký tài khoản mới
+Future<String> registerWithEmail(String email, String password) async {
+  final response = await http.post(
+    Uri.parse('http://localhost:3000/auth/local/register'),
+    headers: {'Content-Type': 'application/json; charset=UTF-8'},
+    body: jsonEncode({'email': email, 'password': password}),
+  );
+  if (response.statusCode == 201) {
+    final data = jsonDecode(response.body);
+    return data['token'];
+  } else {
+    throw Exception(jsonDecode(response.body)['message'] ?? 'Đăng ký thất bại');
+  }
 }
+
+// Đăng nhập bằng email & password
+Future<String> loginWithEmail(String email, String password) async {
+  final response = await http.post(
+    Uri.parse('http://localhost:3000/auth/local/login'),
+    headers: {'Content-Type': 'application/json; charset=UTF-8'},
+    body: jsonEncode({'email': email, 'password': password}),
+  );
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['token'];
+  } else {
+    throw Exception(
+      jsonDecode(response.body)['message'] ?? 'Đăng nhập thất bại',
+    );
+  }
+}
+
+}
+

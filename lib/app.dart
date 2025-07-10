@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'screens/home_screen.dart'; 
-import 'screens/stats_screen.dart'; 
-import '/bloc/theme_bloc.dart'; 
-import 'screens/login_screen.dart'; 
-import '/bloc/todo_bloc.dart'; 
-import '/bloc/todo_event.dart'; 
-import '/widgets/filter_button.dart'; 
-import '/widgets/theme_toggle_button.dart'; 
-
+import 'screens/home_screen.dart';
+import 'screens/stats_screen.dart';
+import '/bloc/theme_bloc.dart';
+import 'screens/login_screen.dart';
+import '/bloc/todo_bloc.dart';
+import '/bloc/todo_event.dart';
+import '/widgets/filter_button.dart';
+import '/widgets/theme_toggle_button.dart';
 
 class TodoApp extends StatefulWidget {
   const TodoApp({super.key});
@@ -36,8 +35,6 @@ class _TodoAppState extends State<TodoApp> {
     // Dispatch sự kiện Logout đến TodoBloc
     context.read<TodoBloc>().add(Logout()); //
 
-    // Sau khi logout, điều hướng về màn hình đăng nhập
-    // Sử dụng pushAndRemoveUntil để xóa tất cả các route trước đó và hiển thị LoginScreen
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => false,
@@ -51,43 +48,65 @@ class _TodoAppState extends State<TodoApp> {
         final isDarkMode = themeState is ThemeInitial
             ? themeState.isDarkMode
             : false;
-        return Scaffold( // Thay thế MaterialApp home bằng Scaffold để có AppBar
+        return Scaffold(
+          // Thay thế MaterialApp home bằng Scaffold để có AppBar
           appBar: AppBar(
-            title: const Text('Todos'),
+            title: Text(_selectedIndex == 0 ? 'Todos' : 'Thống kê'),
             actions: [
               // Nút chuyển đổi theme
               const ThemeToggleButton(), //
               // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'toggle_all') {
-                    // Dispatch sự kiện ToggleAll đến TodoBloc
-                    context.read<TodoBloc>().add(ToggleAll()); //
-                  } else if (value == 'clear_completed') {
-                    // Dispatch sự kiện ClearCompleted đến TodoBloc
-                    context.read<TodoBloc>().add(ClearCompleted()); //
-                  } else if (value == 'logout') {
-                    _handleLogout();
-                  }
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'toggle_all',
-                    child: Text('Đánh dấu tất cả hoàn thành/chưa hoàn thành'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'clear_completed',
-                    child: Text('Xóa tất cả đã hoàn thành'),
-                  ),
-                  const PopupMenuDivider(), // Đường phân cách
-                  const PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Text('Đăng xuất'), // Nút đăng xuất
-                  ),
-                ],
-              ),
-              // Nút lọc
-              const FilterButton(), //
+              if (_selectedIndex == 0) ...[
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'toggle_all') {
+                      // Dispatch sự kiện ToggleAll đến TodoBloc
+                      context.read<TodoBloc>().add(ToggleAll()); //
+                    } else if (value == 'clear_completed') {
+                      // Dispatch sự kiện ClearCompleted đến TodoBloc
+                      context.read<TodoBloc>().add(ClearCompleted()); //
+                    } else if (value == 'logout') {
+                      _handleLogout();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'toggle_all',
+                          child: Text(
+                            'Đánh dấu tất cả hoàn thành/chưa hoàn thành',
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'clear_completed',
+                          child: Text('Xóa tất cả đã hoàn thành'),
+                        ),
+                        const PopupMenuDivider(), // Đường phân cách
+                        const PopupMenuItem<String>(
+                          value: 'logout',
+                          child: Text('Đăng xuất'), // Nút đăng xuất
+                        ),
+                      ],
+                ),
+                // Nút lọc
+                const FilterButton(), //
+              ] else ...[
+                // Nút đăng xuất cho tab thống kê
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'logout') {
+                      _handleLogout();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'logout',
+                          child: Text('Đăng xuất'),
+                        ),
+                      ],
+                ),
+              ],
             ],
           ),
           body: _widgetOptions.elementAt(_selectedIndex),
