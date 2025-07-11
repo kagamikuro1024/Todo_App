@@ -18,9 +18,9 @@ connectDB();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000', 
+  origin: ['http://localhost:3000', 'http://192.168.0.109:3000'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, // Cho phép gửi cookie/auth headers
+  credentials: true,
 }));
 
 // Middleware để parse JSON body
@@ -45,4 +45,4 @@ app.use('/auth/local', authLocalRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT,'0.0.0.0', () => console.log(`Server running on port ${PORT}`));
