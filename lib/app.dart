@@ -6,7 +6,7 @@ import '/bloc/theme_bloc.dart';
 import 'screens/login_screen.dart';
 import '/bloc/todo_bloc.dart';
 import '/bloc/todo_event.dart';
-import '/widgets/filter_button.dart';
+//import '/widgets/filter_button.dart';
 import '/widgets/theme_toggle_button.dart';
 
 class TodoApp extends StatefulWidget {
@@ -33,8 +33,7 @@ class _TodoAppState extends State<TodoApp> {
   // Hàm xử lý đăng xuất
   void _handleLogout() async {
     // Dispatch sự kiện Logout đến TodoBloc
-    context.read<TodoBloc>().add(Logout()); //
-
+    context.read<TodoBloc>().add(Logout()); 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const LoginScreen()),
       (Route<dynamic> route) => false,
@@ -52,8 +51,10 @@ class _TodoAppState extends State<TodoApp> {
           appBar: AppBar(
             title: Text(_selectedIndex == 0 ? 'Todos' : 'Thống kê'),
             actions: [
-              // Nút chuyển đổi theme
               const ThemeToggleButton(), 
+              //Nút để tìm kiếm Todo theo tên và trạng thái (hoàn thành/chưa hoàn thành
+              // hoặc theo ngày tạo)
+              
               // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
               if (_selectedIndex == 0) ...[
                 PopupMenuButton<String>(
@@ -88,7 +89,6 @@ class _TodoAppState extends State<TodoApp> {
                       ],
                 ),
                 // Nút lọc
-                const FilterButton(), //
               ] else ...[
                 // Nút đăng xuất cho tab thống kê
                 PopupMenuButton<String>(

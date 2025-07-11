@@ -8,6 +8,7 @@ import '/screens/add_edit_screen.dart';
 import '/utils/app_constants.dart';
 //import '/widgets/filter_button.dart';
 import '/widgets/todo_item.dart';
+import '/widgets/search_widget.dart';
 //import '/widgets/theme_toggle_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/screens/login_screen.dart';
@@ -58,62 +59,94 @@ class HomeScreen extends StatelessWidget {
             debugPrint(
               '[HomeScreen] Filtered todos count: ${filteredTodos.length}',
             );
-            if (filteredTodos.isEmpty) {
-              return Center(
-                child: Text(
-                  state.activeFilter == VisibilityFilter.all
-                      ? 'Chưa có todo nào. Nhấn "+" để thêm!'
-                      : 'Không có todo nào ${state.activeFilter == VisibilityFilter.active ? 'chưa hoàn thành' : 'đã hoàn thành'}',
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  textAlign: TextAlign.center,
+
+            return Column(
+              children: [
+                const SearchWidget(),
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    'Danh sách công việc',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
                 ),
-              );
-            }
-            return ListView.builder(
-              itemCount: filteredTodos.length,
-              itemBuilder: (context, index) {
-                final todo = filteredTodos[index];
-                return TodoItem(
-                  todo: todo,
-                  onDismissed: (direction) {
-                    // Xóa todo khi vuốt
-                    print('[HomeScreen] Deleting todo: ${todo.task}');
-                    context.read<TodoBloc>().add(DeleteTodo(todo));
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        SnackBar(
-                          content: Text('Đã xóa "${todo.task}"'),
-                          action: SnackBarAction(
-                            label: 'Hoàn tác',
-                            onPressed: () {
-                              context.read<TodoBloc>().add(
-                                UndoDeleteTodo(todo, index),
-                              );
-                            },
+                Expanded(
+                  child: filteredTodos.isEmpty
+                      ? Center(
+                          child: Text(
+                            state.activeFilter == VisibilityFilter.all
+                                ? 'Chưa có todo nào. Nhấn "+" để thêm!'
+                                : 'Không có todo nào ${state.activeFilter == VisibilityFilter.active ? 'chưa hoàn thành' : 'đã hoàn thành'}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredTodos.length,
+                          itemBuilder: (context, index) {
+                            final todo = filteredTodos[index];
+                            return TodoItem(
+                              todo: todo,
+                              onDismissed: (direction) {
+                                // Xóa todo khi vuốt
+                                print(
+                                  '[HomeScreen] Deleting todo: ${todo.task}',
+                                );
+                                context.read<TodoBloc>().add(DeleteTodo(todo));
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                      content: Text('Đã xóa "${todo.task}"'),
+                                      action: SnackBarAction(
+                                        label: 'Hoàn tác',
+                                        onPressed: () {
+                                          context.read<TodoBloc>().add(
+                                            UndoDeleteTodo(todo, index),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  );
+                              },
+                              onTap: () {
+                                // Chỉnh sửa todo khi nhấn vào
+                                print(
+                                  '[HomeScreen] Editing todo: ${todo.task}',
+                                );
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => AddEditScreen(
+                                      isEditing: true,
+                                      todo: todo,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onCheckboxChanged: (_) {
+                                // Đánh dấu hoàn thành/chưa hoàn thành
+                                print(
+                                  '[HomeScreen] Toggling todo: ${todo.task}',
+                                );
+                                context.read<TodoBloc>().add(
+                                  UpdateTodo(
+                                    todo.copyWith(complete: !todo.complete),
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                      );
-                  },
-                  onTap: () {
-                    // Chỉnh sửa todo khi nhấn vào
-                    print('[HomeScreen] Editing todo: ${todo.task}');
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            AddEditScreen(isEditing: true, todo: todo),
-                      ),
-                    );
-                  },
-                  onCheckboxChanged: (_) {
-                    // Đánh dấu hoàn thành/chưa hoàn thành
-                    print('[HomeScreen] Toggling todo: ${todo.task}');
-                    context.read<TodoBloc>().add(
-                      UpdateTodo(todo.copyWith(complete: !todo.complete)),
-                    );
-                  },
-                );
-              },
+                ),
+              ],
             );
           } else if (state is TodosNotLoaded) {
             return const Center(child: Text('Không thể tải todos.'));

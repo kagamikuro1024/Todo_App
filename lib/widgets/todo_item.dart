@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '/models/todo.dart';
 
 class TodoItem extends StatelessWidget {
@@ -52,8 +53,11 @@ class TodoItem extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          subtitle: todo.note.isNotEmpty
-              ? Text(
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (todo.note.isNotEmpty)
+                Text(
                   todo.note,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -65,8 +69,16 @@ class TodoItem extends StatelessWidget {
                         ? (isDarkMode ? Colors.grey[500] : Colors.grey[600])
                         : (isDarkMode ? Colors.grey[300] : Colors.grey[700]),
                   ),
-                )
-              : null,
+                ),
+              Text(
+                'Tạo lúc: ${DateFormat('dd/MM/yyyy_HH:mm').format(todo.createdAt)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
           trailing: const Icon(
             Icons.arrow_forward_ios,
             size: 16,

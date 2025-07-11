@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
-import '/models/todo.dart'; 
-import '../utils/app_constants.dart'; 
+import '/models/todo.dart';
+import '/models/search_filter.dart';
+import '../utils/app_constants.dart';
 
 abstract class TodoEvent extends Equatable {
   const TodoEvent();
@@ -78,3 +79,18 @@ class UndoDeleteTodo extends TodoEvent {
 
 // Thêm sự kiện Logout
 class Logout extends TodoEvent {}
+
+// Các event mới cho chức năng tìm kiếm
+class UpdateSearchFilter extends TodoEvent {
+  final SearchFilter searchFilter;
+
+  const UpdateSearchFilter(this.searchFilter);
+
+  @override
+  List<Object> get props => [searchFilter];
+
+  @override
+  String toString() => 'UpdateSearchFilter { searchFilter: $searchFilter }';
+}
+
+class ClearSearchFilter extends TodoEvent {}
