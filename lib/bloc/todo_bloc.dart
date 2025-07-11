@@ -8,7 +8,7 @@ import '/repositories/todo_repository.dart';
 final Uuid _uuid = const Uuid();
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
-  final TodoRepository _todoRepository; // Trường này là private
+  final TodoRepository _todoRepository; 
 
   TodoBloc({required TodoRepository todoRepository})
       : _todoRepository = todoRepository,
@@ -21,7 +21,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     on<ClearCompleted>(_onClearCompleted);
     on<UpdateFilter>(_onUpdateFilter);
     on<UndoDeleteTodo>(_onUndoDeleteTodo);
-    on<Logout>(_onLogout); // Thêm handler cho sự kiện Logout
+    on<Logout>(_onLogout);
   }
 
   Future<void> _onLoadTodos(LoadTodos event, Emitter<TodoState> emit) async {
@@ -39,12 +39,11 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
       final newTodo = event.todo.copyWith(id: _uuid.v4());
       try {
         // Use the todo object returned by the repository to ensure consistency
-        final addedTodo = await _todoRepository.addTodo(newTodo); // Modified
-        final updatedTodos = List<Todo>.from((state as TodosLoaded).todos)..add(addedTodo); // Modified
+        final addedTodo = await _todoRepository.addTodo(newTodo);
+        final updatedTodos = List<Todo>.from((state as TodosLoaded).todos)..add(addedTodo); 
         emit((state as TodosLoaded).copyWith(todos: updatedTodos));
       } catch (e) {
         print('Error adding todo to backend: $e');
-        // Xử lý lỗi (ví dụ: hiển thị SnackBar)
       }
     }
   }
@@ -52,10 +51,9 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   Future<void> _onUpdateTodo(UpdateTodo event, Emitter<TodoState> emit) async {
     if (state is TodosLoaded) {
       try {
-        // Use the todo object returned by the repository to ensure consistency
-        final updatedBackendTodo = await _todoRepository.updateTodo(event.todo); // Modified
+        final updatedBackendTodo = await _todoRepository.updateTodo(event.todo);
         final updatedTodos = (state as TodosLoaded).todos.map((todo) {
-          return todo.id == event.todo.id ? updatedBackendTodo : todo; // Modified
+          return todo.id == event.todo.id ? updatedBackendTodo : todo;
         }).toList();
         emit((state as TodosLoaded).copyWith(todos: updatedTodos));
       } catch (e) {
@@ -141,14 +139,9 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   Future<void> _onLogout(Logout event, Emitter<TodoState> emit) async {
     try {
       await _todoRepository.logout();
-      // Sau khi logout thành công, chúng ta có thể chuyển state về trạng thái ban đầu
-      // hoặc một trạng thái biểu thị người dùng đã đăng xuất.
-      // Tuy nhiên, việc điều hướng màn hình sẽ do Widget đảm nhiệm.
       emit(TodosLoading()); // Reset state sau khi logout
     } catch (e) {
       print('Error during logout: $e');
-      // Xử lý lỗi logout (ví dụ: hiển thị thông báo lỗi cho người dùng)
-      // Giữ nguyên trạng thái hiện tại hoặc chuyển sang trạng thái lỗi nếu cần
     }
   }
 }

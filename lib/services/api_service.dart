@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '/models/todo.dart'; // Đảm bảo import đúng đường dẫn đến model Todo của bạn
+import '/models/todo.dart'; 
 
 class ApiService {
-final String backendUrl = 'http://10.0.2.2:3000'; // URL backend của bạn
+final String backendUrl = 'http://10.0.2.2:3000'; // URL backend 
 final String _baseUrl = 'http://10.0.2.2:3000/api/todos'; // URL base của API Todos
   String? _jwtToken;
 
@@ -18,7 +18,7 @@ final String _baseUrl = 'http://10.0.2.2:3000/api/todos'; // URL base của API 
   }
 
   Future<Map<String, String>> _getHeaders() async {
-    await _loadToken(); // Đảm bảo token được tải trước mỗi request
+    await _loadToken(); 
     if (_jwtToken == null) {
       throw Exception('JWT Token not found. Please login.');
     }

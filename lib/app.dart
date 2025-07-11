@@ -49,12 +49,11 @@ class _TodoAppState extends State<TodoApp> {
             ? themeState.isDarkMode
             : false;
         return Scaffold(
-          // Thay thế MaterialApp home bằng Scaffold để có AppBar
           appBar: AppBar(
             title: Text(_selectedIndex == 0 ? 'Todos' : 'Thống kê'),
             actions: [
               // Nút chuyển đổi theme
-              const ThemeToggleButton(), //
+              const ThemeToggleButton(), 
               // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
               if (_selectedIndex == 0) ...[
                 PopupMenuButton<String>(

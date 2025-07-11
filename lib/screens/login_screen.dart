@@ -7,10 +7,6 @@ import 'dart:convert';
 import '/widgets/theme_toggle_button.dart';
 import 'register_screen.dart';
 import '../services/api_service.dart';
-///import 'package:flutter_bloc/flutter_bloc.dart';
-//import '../bloc/todo_bloc.dart';
-///import '../repositories/todo_repository.dart';
-////import '../bloc/todo_event.dart';
 import '../main.dart'; 
 
 // Màn hình Đăng nhập
@@ -298,7 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ElevatedButton.icon(
                                   onPressed: _handleSignIn,
                                   icon: Image.asset(
-                                    'assets/google_logo.png', // Đảm bảo bạn có asset này
+                                    'assets/google_logo.png', 
                                     height: 28.0,
                                     width: 28.0,
                                   ),

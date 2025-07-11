@@ -12,7 +12,7 @@ class TodoRepository {
     return await _apiService.fetchTodos();
   }
 
-  // Lưu danh sách todos (thực ra là thêm/cập nhật) lên API
+  // Lưu danh sách todos lên API
   Future<Todo> addTodo(Todo todo) async {
     return await _apiService.addTodo(todo);
   }
