@@ -52,9 +52,6 @@ class _TodoAppState extends State<TodoApp> {
             title: Text(_selectedIndex == 0 ? 'Todos' : 'Thống kê'),
             actions: [
               const ThemeToggleButton(), 
-              //Nút để tìm kiếm Todo theo tên và trạng thái (hoàn thành/chưa hoàn thành
-              // hoặc theo ngày tạo)
-              
               // Nút để chuyển đổi tất cả hoặc xóa tất cả đã hoàn thành
               if (_selectedIndex == 0) ...[
                 PopupMenuButton<String>(
