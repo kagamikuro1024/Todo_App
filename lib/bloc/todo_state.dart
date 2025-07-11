@@ -70,15 +70,28 @@ class TodosLoaded extends TodoState {
       // Lọc theo ngày tạo
       if (searchFilter.startDate != null) {
         filtered = filtered.where((todo) {
-          return todo.createdAt.isAfter(searchFilter.startDate!) ||
-              todo.createdAt.isAtSameMomentAs(searchFilter.startDate!);
+          final created = todo.createdAt.toLocal();
+          final start = searchFilter.startDate!;
+          return !created.isBefore(
+            DateTime(start.year, start.month, start.day),
+          );
         }).toList();
       }
-
       if (searchFilter.endDate != null) {
         filtered = filtered.where((todo) {
-          return todo.createdAt.isBefore(searchFilter.endDate!) ||
-              todo.createdAt.isAtSameMomentAs(searchFilter.endDate!);
+          final created = todo.createdAt.toLocal();
+          final end = searchFilter.endDate!;
+          // Đặt endDate là cuối ngày
+          final endOfDay = DateTime(
+            end.year,
+            end.month,
+            end.day,
+            23,
+            59,
+            59,
+            999,
+          );
+          return !created.isAfter(endOfDay);
         }).toList();
       }
     }

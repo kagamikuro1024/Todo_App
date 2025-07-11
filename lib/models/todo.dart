@@ -1,4 +1,3 @@
-// lib/models/todo.dart
 import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,7 +18,9 @@ class Todo extends Equatable {
     this.complete = false,
     DateTime? createdAt,
   }) : id = id ?? _uuid.v4(), // Nếu ID không được cung cấp, tạo một ID mới
-       createdAt = createdAt ?? DateTime.now();
+       createdAt = (createdAt ?? DateTime.now().toUtc()).toUtc().add(
+         const Duration(hours: 0),
+       );
 
   // Phương thức copyWith để tạo một bản sao của Todo với các thuộc tính được cập nhật
   Todo copyWith({
@@ -34,7 +35,9 @@ class Todo extends Equatable {
       task: task ?? this.task,
       note: note ?? this.note,
       complete: complete ?? this.complete,
-      createdAt: createdAt ?? this.createdAt,
+      createdAt: createdAt != null
+          ? createdAt.toUtc().add(const Duration(hours: 7))
+          : this.createdAt,
     );
   }
 
@@ -45,20 +48,29 @@ class Todo extends Equatable {
       'task': task,
       'note': note,
       'complete': complete,
-      'createdAt': createdAt.toIso8601String(),
+      'createdAt': createdAt
+          .toUtc()
+          .add(const Duration(hours: 7))
+          .toIso8601String(),
     };
   }
 
   // Tạo đối tượng Todo từ Map
   factory Todo.fromJson(Map<String, dynamic> json) {
+    DateTime createdAt;
+    if (json['createdAt'] != null) {
+      createdAt = DateTime.parse(
+        json['createdAt'] as String,
+      ).toUtc().add(const Duration(hours: 7));
+    } else {
+      createdAt = DateTime.now().toUtc().add(const Duration(hours: 7));
+    }
     return Todo(
       id: json['id'] as String,
       task: json['task'] as String,
       note: json['note'] as String,
       complete: json['complete'] as bool,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
+      createdAt: createdAt,
     );
   }
 
