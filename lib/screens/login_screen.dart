@@ -3,14 +3,15 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '/app.dart';
+//import '/app.dart';
 import '/widgets/theme_toggle_button.dart';
 import 'register_screen.dart';
 import '../services/api_service.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/todo_bloc.dart';
-import '../repositories/todo_repository.dart';
-import '../bloc/todo_event.dart';
+///import 'package:flutter_bloc/flutter_bloc.dart';
+//import '../bloc/todo_bloc.dart';
+///import '../repositories/todo_repository.dart';
+////import '../bloc/todo_event.dart';
+import '../main.dart'; 
 
 // Màn hình Đăng nhập
 class LoginScreen extends StatefulWidget {
@@ -90,15 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('jwt_token', jwtToken);
 
         // Chuyển hướng đến màn hình chính sau khi đăng nhập thành công
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => BlocProvider(
-              create: (context) => TodoBloc(
-                todoRepository: TodoRepository(apiService: ApiService()),
-              )..add(LoadTodos()),
-              child: const TodoApp(),
-            ),
-          ),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthGate()),
+          (Route<dynamic> route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -136,15 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Đăng nhập thành công!')));
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => TodoBloc(
-              todoRepository: TodoRepository(apiService: ApiService()),
-            )..add(LoadTodos()),
-            child: const TodoApp(),
-          ),
-        ),
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const AuthGate()),
+        (Route<dynamic> route) => false,
       );
     } catch (e) {
       if (!mounted) return;

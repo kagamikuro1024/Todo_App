@@ -38,8 +38,9 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     if (state is TodosLoaded) {
       final newTodo = event.todo.copyWith(id: _uuid.v4());
       try {
-        await _todoRepository.addTodo(newTodo);
-        final updatedTodos = List<Todo>.from((state as TodosLoaded).todos)..add(newTodo);
+        // Use the todo object returned by the repository to ensure consistency
+        final addedTodo = await _todoRepository.addTodo(newTodo); // Modified
+        final updatedTodos = List<Todo>.from((state as TodosLoaded).todos)..add(addedTodo); // Modified
         emit((state as TodosLoaded).copyWith(todos: updatedTodos));
       } catch (e) {
         print('Error adding todo to backend: $e');
@@ -51,9 +52,10 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   Future<void> _onUpdateTodo(UpdateTodo event, Emitter<TodoState> emit) async {
     if (state is TodosLoaded) {
       try {
-        await _todoRepository.updateTodo(event.todo);
+        // Use the todo object returned by the repository to ensure consistency
+        final updatedBackendTodo = await _todoRepository.updateTodo(event.todo); // Modified
         final updatedTodos = (state as TodosLoaded).todos.map((todo) {
-          return todo.id == event.todo.id ? event.todo : todo;
+          return todo.id == event.todo.id ? updatedBackendTodo : todo; // Modified
         }).toList();
         emit((state as TodosLoaded).copyWith(todos: updatedTodos));
       } catch (e) {

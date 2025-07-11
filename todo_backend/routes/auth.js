@@ -102,8 +102,9 @@ router.get("/current_user", authCheck, (req, res) => {
 });
 // Route to logout the user
 router.get("/logout", (req, res) => {
-  req.logout((err) => {
+  req.logout(function(err) {
     if (err) {
+      console.error("Logout error:", err);
       return res.status(500).json({ message: "Logout failed" });
     }
     req.session = null; // Clear session

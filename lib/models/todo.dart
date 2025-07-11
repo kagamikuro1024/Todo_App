@@ -19,12 +19,7 @@ class Todo extends Equatable {
   }) : id = id ?? _uuid.v4(); // Nếu ID không được cung cấp, tạo một ID mới
 
   // Phương thức copyWith để tạo một bản sao của Todo với các thuộc tính được cập nhật
-  Todo copyWith({
-    String? id,
-    String? task,
-    String? note,
-    bool? complete,
-  }) {
+  Todo copyWith({String? id, String? task, String? note, bool? complete}) {
     return Todo(
       id: id ?? this.id,
       task: task ?? this.task,
@@ -35,12 +30,7 @@ class Todo extends Equatable {
 
   // Chuyển đổi đối tượng Todo thành Map để lưu trữ
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'task': task,
-      'note': note,
-      'complete': complete,
-    };
+    return {'id': id, 'task': task, 'note': note, 'complete': complete};
   }
 
   // Tạo đối tượng Todo từ Map
@@ -55,6 +45,21 @@ class Todo extends Equatable {
 
   @override
   List<Object?> get props => [id, task, note, complete];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Todo &&
+        other.id == id &&
+        other.task == task &&
+        other.note == note &&
+        other.complete == complete;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, task, note, complete);
+  }
 
   @override
   String toString() {

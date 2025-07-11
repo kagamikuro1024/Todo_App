@@ -11,9 +11,25 @@ import '/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('[main] Starting app...');
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => ThemeBloc())],
+      providers: [
+        BlocProvider(create: (context) => ThemeBloc()),
+        BlocProvider(
+          create: (context) {
+            debugPrint('[main] Creating TodoBloc');
+            final todoBloc = TodoBloc(
+              todoRepository: TodoRepository(apiService: ApiService()),
+            );
+            debugPrint('[main] TodoBloc created successfully');
+            // Test event để kiểm tra TodoBloc có hoạt động không
+            todoBloc.add(LoadTodos());
+            debugPrint('[main] LoadTodos event dispatched');
+            return todoBloc;
+          },
+        ),
+      ],
       child: const MyApp(),
     ),
   );
@@ -140,17 +156,26 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _checkAuth() async {
+    debugPrint('[AuthGate] Checking authentication...');
     final prefs = await SharedPreferences.getInstance();
     final String? jwtToken = prefs.getString('jwt_token');
     if (jwtToken != null) {
+      debugPrint('[AuthGate] JWT token found, validating...');
       final apiService = ApiService();
       try {
         await apiService.fetchTodos();
+        debugPrint('[AuthGate] Token is valid, user is authenticated');
         setState(() => isAuthenticated = true);
+        // Load todos khi xác thực thành công
+        debugPrint('[AuthGate] Dispatching LoadTodos event');
+        context.read<TodoBloc>().add(LoadTodos());
         return;
-      } catch (_) {
+      } catch (e) {
+        debugPrint('[AuthGate] Token validation failed: $e');
         await prefs.remove('jwt_token');
       }
+    } else {
+      debugPrint('[AuthGate] No JWT token found');
     }
     setState(() => isAuthenticated = false);
   }
@@ -161,13 +186,10 @@ class _AuthGateState extends State<AuthGate> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (isAuthenticated!) {
-      return BlocProvider(
-        create: (context) =>
-            TodoBloc(todoRepository: TodoRepository(apiService: ApiService()))
-              ..add(LoadTodos()),
-        child: const TodoApp(),
-      );
+      debugPrint('[AuthGate] Showing TodoApp');
+      return const TodoApp();
     } else {
+      debugPrint('[AuthGate] Showing login screen');
       return const LoginScreen();
     }
   }

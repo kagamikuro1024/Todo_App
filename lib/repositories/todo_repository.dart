@@ -5,7 +5,7 @@ class TodoRepository {
   final ApiService _apiService; // Sử dụng ApiService
 
   TodoRepository({ApiService? apiService})
-      : _apiService = apiService ?? ApiService(); // Khởi tạo ApiService
+    : _apiService = apiService ?? ApiService(); // Khởi tạo ApiService
 
   // Tải danh sách todos từ API
   Future<List<Todo>> loadTodos() async {
@@ -13,12 +13,12 @@ class TodoRepository {
   }
 
   // Lưu danh sách todos (thực ra là thêm/cập nhật) lên API
-  Future<void> addTodo(Todo todo) async {
-    await _apiService.addTodo(todo);
+  Future<Todo> addTodo(Todo todo) async {
+    return await _apiService.addTodo(todo);
   }
 
-  Future<void> updateTodo(Todo todo) async {
-    await _apiService.updateTodo(todo);
+  Future<Todo> updateTodo(Todo todo) async {
+    return await _apiService.updateTodo(todo);
   }
 
   Future<void> deleteTodo(Todo todo) async {

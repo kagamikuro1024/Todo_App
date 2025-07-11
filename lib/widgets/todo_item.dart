@@ -19,7 +19,9 @@ class TodoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Dismissible(
-      key: Key('TodoItem_${todo.id}'), // Khóa duy nhất cho Dismissible
+      key: ValueKey(
+        'TodoItem_${todo.id}_${todo.task.hashCode}_${todo.complete}',
+      ), // Key duy nhất bao gồm cả trạng thái
       onDismissed: onDismissed,
       background: Container(
         color: Colors.red,

@@ -8,11 +8,7 @@ class AddEditScreen extends StatefulWidget {
   final bool isEditing;
   final Todo? todo;
 
-  const AddEditScreen({
-    super.key,
-    required this.isEditing,
-    this.todo,
-  });
+  const AddEditScreen({super.key, required this.isEditing, this.todo});
 
   @override
   State<AddEditScreen> createState() => _AddEditScreenState();
@@ -33,9 +29,7 @@ class _AddEditScreenState extends State<AddEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isEditing ? 'Sửa Todo' : 'Thêm Todo'),
-      ),
+      appBar: AppBar(title: Text(widget.isEditing ? 'Sửa Todo' : 'Thêm Todo')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -52,7 +46,9 @@ class _AddEditScreenState extends State<AddEditScreen> {
                   ),
                 ),
                 validator: (val) {
-                  return val!.trim().isEmpty ? 'Công việc không được để trống' : null;
+                  return val!.trim().isEmpty
+                      ? 'Công việc không được để trống'
+                      : null;
                 },
                 onSaved: (value) => _task = value!,
               ),
@@ -79,24 +75,43 @@ class _AddEditScreenState extends State<AddEditScreen> {
                   backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
+                    debugPrint(
+                      '[AddEditScreen] Form validated, task: $_task, note: $_note',
+                    );
+                    debugPrint(
+                      '[AddEditScreen] Current context: ${context.runtimeType}',
+                    );
+                    debugPrint(
+                      '[AddEditScreen] Can find TodoBloc: ${context.findAncestorWidgetOfExactType<BlocProvider<TodoBloc>>() != null}',
+                    );
+
                     if (widget.isEditing) {
                       // Cập nhật todo hiện có
-                      context.read<TodoBloc>().add(
-                            UpdateTodo(
-                              widget.todo!.copyWith(task: _task, note: _note),
-                            ),
-                          );
+                      debugPrint(
+                        '[AddEditScreen] Updating todo: ${widget.todo!.id}',
+                      );
+                      final updatedTodo = widget.todo!.copyWith(
+                        task: _task,
+                        note: _note,
+                      );
+                      debugPrint(
+                        '[AddEditScreen] Updated todo: ${updatedTodo.task}',
+                      );
+                      context.read<TodoBloc>().add(UpdateTodo(updatedTodo));
                     } else {
                       // Thêm todo mới
-                      context.read<TodoBloc>().add(
-                            AddTodo(
-                              Todo(task: _task, note: _note),
-                            ),
-                          );
+                      debugPrint('[AddEditScreen] Adding new todo');
+                      final newTodo = Todo(task: _task, note: _note);
+                      debugPrint('[AddEditScreen] New todo: ${newTodo.task}');
+                      context.read<TodoBloc>().add(AddTodo(newTodo));
                     }
+
+                    // Đợi một chút để đảm bảo event được xử lý
+                    await Future.delayed(const Duration(milliseconds: 100));
+                    debugPrint('[AddEditScreen] Popping screen');
                     Navigator.pop(context); // Quay lại màn hình trước
                   }
                 },

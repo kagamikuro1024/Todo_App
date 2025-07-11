@@ -20,6 +20,11 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: BlocConsumer<TodoBloc, TodoState>(
         listener: (context, state) async {
+          debugPrint('[HomeScreen] State changed: ${state.runtimeType}');
+          if (state is TodosLoaded) {
+            debugPrint('[HomeScreen] Todos count: ${state.todos.length}');
+          }
+
           if (state is TodosLoaded &&
               state.todos.isEmpty &&
               state.activeFilter == VisibilityFilter.completed) {
@@ -38,17 +43,21 @@ class HomeScreen extends StatelessWidget {
             await prefs.remove('jwt_token');
             if (context.mounted) {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
               );
             }
           }
         },
         builder: (context, state) {
+          debugPrint('[HomeScreen] Building with state: ${state.runtimeType}');
           if (state is TodosLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TodosLoaded) {
             final filteredTodos = state.filteredTodos;
+            debugPrint(
+              '[HomeScreen] Filtered todos count: ${filteredTodos.length}',
+            );
             if (filteredTodos.isEmpty) {
               return Center(
                 child: Text(
@@ -68,6 +77,7 @@ class HomeScreen extends StatelessWidget {
                   todo: todo,
                   onDismissed: (direction) {
                     // Xóa todo khi vuốt
+                    print('[HomeScreen] Deleting todo: ${todo.task}');
                     context.read<TodoBloc>().add(DeleteTodo(todo));
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
@@ -87,15 +97,17 @@ class HomeScreen extends StatelessWidget {
                   },
                   onTap: () {
                     // Chỉnh sửa todo khi nhấn vào
+                    print('[HomeScreen] Editing todo: ${todo.task}');
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) =>
+                        builder: (context) =>
                             AddEditScreen(isEditing: true, todo: todo),
                       ),
                     );
                   },
                   onCheckboxChanged: (_) {
                     // Đánh dấu hoàn thành/chưa hoàn thành
+                    print('[HomeScreen] Toggling todo: ${todo.task}');
                     context.read<TodoBloc>().add(
                       UpdateTodo(todo.copyWith(complete: !todo.complete)),
                     );
@@ -112,8 +124,11 @@ class HomeScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Mở màn hình thêm todo mới
+          print('[HomeScreen] Opening add todo screen');
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => AddEditScreen(isEditing: false)),
+            MaterialPageRoute(
+              builder: (context) => AddEditScreen(isEditing: false),
+            ),
           );
         },
         child: const Icon(Icons.add),
